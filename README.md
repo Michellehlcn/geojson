@@ -96,7 +96,7 @@
     var map = new mapboxgl.Map({
       container: 'map', // container id
       style: 'mapbox://styles/mapbox/streets-v11', // YOUR TURN: choose a style: https://docs.mapbox.com/api/maps/#styles
-      center: [-122.411, 37.785], // starting position [lng, lat]
+      center: [146.231820338829,-26.404762976254], // starting position [lng, lat]
       zoom: 10,// starting zoom
       transformRequest: transformRequest
     });
@@ -179,7 +179,7 @@
       };
     });
 
-
+map.addControl(new mapboxgl.NavigationControl());
 
 
   </script>
