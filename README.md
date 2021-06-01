@@ -18,7 +18,7 @@
 
     #map {
     position:fixed;
-background-color: #d74216;
+background-color: #ddd;
 
   top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%; border:none; margin:0; padding:0; overflow:hidden; z-index:999999;
      
@@ -47,7 +47,7 @@ background-color: #d74216;
     .mapboxgl-popup-content h3 {
       background: rgb(61, 59, 59);
       text-align: center;
-      color: #ddd;
+      color: #d74216;
       margin: 0;
       display: block;
       padding: 15px;
