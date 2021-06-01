@@ -11,7 +11,9 @@
   <script src='https://npmcdn.com/csv2geojson@latest/csv2geojson.js'></script>
   <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
   <style>
-     body {
+
+
+   body {
       margin: 0;
       padding: 0;
     }
@@ -66,14 +68,14 @@ background-color: #ddd;
       cursor: pointer;
     }
 
-    .mapboxgl-popup-anchor-top>.mapboxgl-popup-content {
+    .mapboxgl-popup-anchor-top > .mapboxgl-popup-content {
       margin-top: 3px;
     }
 
-    .mapboxgl-popup-anchor-top>.mapboxgl-popup-tip {
+    .mapboxgl-popup-anchor-top > .mapboxgl-popup-tip {
       border-bottom-color: rgb(61, 59, 59);
     }
-
+     
   </style>
 </head>
 
@@ -82,7 +84,7 @@ background-color: #ddd;
   <div id='map'></div>
   <script>
 
-    var transformRequest = (url, resourceType) => {
+var transformRequest = (url, resourceType) => {
   var isMapboxRequest =
     url.slice(8, 22) === "api.mapbox.com" ||
     url.slice(10, 26) === "tiles.mapbox.com";
@@ -92,111 +94,110 @@ background-color: #ddd;
   };
 };
 
+mapboxgl.accessToken = 'pk.eyJ1IjoibWljaGVsbGVobGNuIiwiYSI6ImNrb2tuczRsNjA1c3AycHJ6M25oZ3dwOTkifQ.PwztYmGkX406GWClPKsOyg';
 
-mapboxgl.accessToken = 'pk.eyJ1IjoibWljaGVsbGVobGNuIiwiYSI6ImNrb2tuczRsNjA1c3AycHJ6M25oZ3dwOTkifQ.PwztYmGkX406GWClPKsOyg'; 
 var map = new mapboxgl.Map({
-  container: 'map', // container id
-  style: 'mapbox://styles/mapbox/outdoors-v11', 
-  center: [146.231820338829, -26.404762976254], 
-  zoom: 12, // starting zoom
+  container: 'map',
+  style: 'mapbox://styles/mapbox/outdoors-v11',
+  center: [146.231820338829, -26.404762976254],
+  zoom: 12,
   transformRequest: transformRequest
 });
 
 $(document).ready(function() {
-      $.ajax({
-        type: "GET",
-        //YOUR TURN: Replace with csv export link
-        url: 'https://docs.google.com/spreadsheets/d/1JE7eJPzz_QHsYR0Xm2z_cuOwX6WH2fcvYMB27_iKxjE/gviz/tq?tqx=out:csv&sheet=Sheet1',
-        dataType: "text",
-        success: function(csvData) {
-          makeGeoJSON(csvData);
-        }
-      });
+  $.ajax({
+    type: "GET",
+    url: 'https://docs.google.com/spreadsheets/d/1JE7eJPzz_QHsYR0Xm2z_cuOwX6WH2fcvYMB27_iKxjE/gviz/tq?tqx=out:csv&sheet=Sheet1',
+    dataType: "text",
+    success: function(csvData) {
+      makeGeoJSON(csvData);
+    }
+  });
+
+  function makeGeoJSON(csvData) {
+    csv2geojson.csv2geojson(csvData, {
+        latfield: 'Latitude',
+        lonfield: 'Longitude',
+        delimiter: ','
+      },
+
+      function(err, data) {
+        map.on('load', function() {
+        
+        		map.loadImage(
+						'https://i.ibb.co/wKSQwwJ/rsz-screen-shot-2021-05-20-at-125511-pm.png',
+							function (error, image) {
+											if (error) throw error;
+								map.addImage('custom-marker', image);})
+          
+          	map.addLayer({
+            'id': 'csvData',
+            'type': 'symbol',
+            'source': {
+              'type': 'geojson',
+              'data': data
+            },
+            'layout': {
+             'icon-image': 'custom-marker',
+            }
+          });
+
+          map.on('click', 'csvData', function(e) {
+            var coordinates = e.features[0].geometry.coordinates.slice();
+
+
+            var description =
+              `<h3>` + e.features[0].properties.Name +
+              `</h3>` +
+
+
+              `<h4><center>` +
+              e.features[0].properties.Image +
+              `</h4><center>` +
+              `<h4>` +
+
+              e.features[0].properties.Details +
+              `</h4>`;
+
+
+            while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+              coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+            }
 
 
 
-      function makeGeoJSON(csvData) {
-        csv2geojson.csv2geojson(csvData, {
-              latfield: 'Latitude',
-              lonfield: 'Longitude',
-              delimiter: ','
-            }, function(err, data) {
-              map.on('load', function() {
- map.addLayer({
-          'id': 'csvData',
-          'type': 'circle',
-          'source': {
-            'type': 'geojson',
-            'data': data
-          },
-          'paint': {
-            'circle-radius': 5,
-            'circle-color': "purple"
-          }
+            new mapboxgl.Popup()
+              .setLngLat(coordinates)
+              .setHTML(description)
+              .addTo(map);
+          });
+
+
+          map.on('mouseenter', 'csvData', function() {
+            map.getCanvas().style.cursor = 'pointer';
+          });
+
+
+          map.on('mouseleave', 'places', function() {
+            map.getCanvas().style.cursor = '';
+          });
+
+          var bbox = turf.bbox(data);
+          map.fitBounds(bbox, {
+            padding: 50
+          });
+
         });
 
-
-
-                    // When a click event occurs on a feature in the csvData layer, open a popup at the
-                    // location of the feature, with description HTML from its properties.
-                    map.on('click', 'csvData', function(e) {
-                      var coordinates = e.features[0].geometry.coordinates.slice();
-
-                      //set popup text
-                      //You can adjust the values of the popup to match the headers of your CSV.
-                      // For example: e.features[0].properties.Name is retrieving information from the field Name in the original CSV.
-                      var description =
-                        `<h3>` + e.features[0].properties.Name +
-                        `</h3>` +
-                        
-
-                        `<h4><center>` +
-                        e.features[0].properties.Image +
-                        `</h4><center>`+
-                        `<h4>` +
-                        
-                         e.features[0].properties.Details +
-                        `</h4>` ;
-
-                      // Ensure that if the map is zoomed out such that multiple
-                      // copies of the feature are visible, the popup appears
-                      // over the copy being pointed to.
-                      while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-                        coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-                      }
-
-                      //add Popup to map
-
-                      new mapboxgl.Popup()
-                        .setLngLat(coordinates)
-                        .setHTML(description)
-                        .addTo(map);
-                    });
-
-                    // Change the cursor to a pointer when the mouse is over the places layer.
-                    map.on('mouseenter', 'csvData', function() {
-                      map.getCanvas().style.cursor = 'pointer';
-                    });
-
-                    // Change it back to a pointer when it leaves.
-                    map.on('mouseleave', 'places', function() {
-                      map.getCanvas().style.cursor = '';
-                    });
-
-                    var bbox = turf.bbox(data);
-                    map.fitBounds(bbox, {
-                      padding: 50
-               });
-
       });
-
-    });
-  };
+  }
 });
 
-              map.addControl(
-                new mapboxgl.NavigationControl());
-    map.addControl(new mapboxgl.FullscreenControl());
+  
+ map.addControl(new mapboxgl.FullscreenControl()); 
+map.addControl(
+  new mapboxgl.NavigationControl());
+
   </script>
 
 </body>
