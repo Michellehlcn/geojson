@@ -17,10 +17,11 @@
     }
 
     #map {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      width: 100%;
+    position:fixed;
+background-color: #ddd;
+
+  top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%; border:none; margin:0; padding:0; overflow:hidden; z-index:999999;
+     
     }
 
     /* Popup styling */
