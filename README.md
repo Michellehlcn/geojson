@@ -91,13 +91,13 @@ background-color: #ddd;
       url.replace("?", "?pluginName=sheetMapper&") : url
   };
 };
-//YOUR TURN: add your Mapbox token
 
-mapboxgl.accessToken = 'pk.eyJ1IjoibWljaGVsbGVobGNuIiwiYSI6ImNrb2tuczRsNjA1c3AycHJ6M25oZ3dwOTkifQ.PwztYmGkX406GWClPKsOyg'; //Mapbox token 
+
+mapboxgl.accessToken = 'pk.eyJ1IjoibWljaGVsbGVobGNuIiwiYSI6ImNrb2tuczRsNjA1c3AycHJ6M25oZ3dwOTkifQ.PwztYmGkX406GWClPKsOyg'; 
 var map = new mapboxgl.Map({
   container: 'map', // container id
-  style: 'mapbox://styles/mapbox/streets-v11', // YOUR TURN: choose a style: https://docs.mapbox.com/api/maps/#styles
-  center: [146.231820338829, -26.404762976254], // starting position [lng, lat]
+  style: 'mapbox://styles/mapbox/outdoors-v11', 
+  center: [146.231820338829, -26.404762976254], 
   zoom: 12, // starting zoom
   transformRequest: transformRequest
 });
