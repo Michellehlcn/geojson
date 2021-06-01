@@ -195,6 +195,7 @@ $(document).ready(function() {
 
               map.addControl(
                 new mapboxgl.NavigationControl());
+    map.addControl(new mapboxgl.FullscreenControl());
   </script>
 
 </body>
